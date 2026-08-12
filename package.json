@@ -1,0 +1,44 @@
+{
+  "name": "raffle-platform",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^15.5.23",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "@supabase/ssr": "^0.5.0",
+    "stripe": "^17.0.0",
+    "resend": "^4.0.0",
+    "react-email": "^3.0.0",
+    "@react-email/components": "^0.0.25",
+    "googleapis": "^144.0.0",
+    "react-hook-form": "^7.53.0",
+    "@hookform/resolvers": "^3.9.0",
+    "zod": "^3.23.0",
+    "framer-motion": "^11.5.0",
+    "lucide-react": "^0.445.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.0",
+    "canvas-confetti": "^1.9.3",
+    "react-qr-code": "^2.0.15"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "@types/node": "^22.5.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/canvas-confetti": "^1.6.4",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "supabase": "^1.200.0"
+  }
+}
