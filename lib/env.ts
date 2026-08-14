@@ -15,8 +15,9 @@ const envSchema = z.object({
 
   NEXT_PUBLIC_SITE_URL: z.string().url(),
 
-  // Phase 7: RESEND_API_KEY
-  // Phase 7: RAFFLE_CONFIRMATION_SECRET
+  RESEND_API_KEY: z.string().min(1),
+  RAFFLE_CONFIRMATION_SECRET: z.string().min(32, 'Use a long random string — this signs confirmation links.'),
+  RAFFLE_EMAIL_FROM: z.string().email(),
   // Later:   GOOGLE_SHEETS_CLIENT_EMAIL, GOOGLE_SHEETS_PRIVATE_KEY, GOOGLE_SHEETS_SPREADSHEET_ID
 })
 

@@ -1,19 +1,19 @@
 // app/(public)/raffles/[slug]/purchase/[purchaseId]/pay/page.tsx
-import { notFound } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
+import { signConfirmationToken } from '@/lib/tokens/confirmation-token'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { StripeRedirect } from '@/features/payments/stripe/components/stripe-redirect'
 import { PaymentPendingPoller } from '@/features/payments/stripe/components/payment-pending-poller'
-import { createClient } from '@/lib/supabase/server'
 import { PaymentInstructions } from '@/features/payments/manual/components/payment-instructions'
 import type { ManualMethod } from '@/features/payments/manual/lib/method-copy'
 
 export default async function PayPage({
   params, searchParams,
 }: {
-  params: Promise<{ purchaseId: string }>
+  params: Promise<{ slug: string; purchaseId: string }>
   searchParams: Promise<{ stripe?: string }>
 }) {
-  const { purchaseId } = await params
+  const { purchaseId, slug } = await params
   const { stripe: stripeStatus } = await searchParams
   const admin = createAdminClient()
 
@@ -25,12 +25,10 @@ export default async function PayPage({
 
   if (!purchase) notFound()
 
-  // First visit for a fresh Stripe purchase — auto-redirect into Checkout.
   if (purchase.payment_method === 'stripe' && purchase.payment_status === 'pending' && !stripeStatus) {
     return <StripeRedirect purchaseId={purchase.id} />
   }
 
-  // Cancelled — requires an explicit click, never auto-fires.
   if (stripeStatus === 'cancelled') {
     return (
       <main className="max-w-md mx-auto py-16 px-6 text-center">
@@ -43,14 +41,13 @@ export default async function PayPage({
 
   if (purchase.payment_method !== 'stripe' && purchase.payment_method !== 'cash') {
     if (purchase.payment_status === 'pending') {
-      const admin2 = createAdminClient()
-      const { data: full } = await admin2
+      const { data: full } = await admin
         .from('purchases')
         .select('buyer_name, raffle_id')
         .eq('id', purchase.id)
         .single()
 
-      const { data: raffle } = await admin2
+      const { data: raffle } = await admin
         .from('raffles')
         .select('payment_accounts')
         .eq('id', full!.raffle_id)
@@ -87,6 +84,11 @@ export default async function PayPage({
     }
   }
 
+  if (purchase.payment_status === 'approved') {
+    const token = signConfirmationToken(purchase.id)
+    redirect(`/raffles/${slug}/confirmation/${purchase.id}?t=${token}`)
+  }
+
   // Bounded polling instead of infinite meta-refresh.
   if (purchase.payment_status === 'pending') {
     return (
@@ -96,10 +98,11 @@ export default async function PayPage({
     )
   }
 
+  // Fallback — shouldn't normally be reached, but keeps every status covered.
   return (
     <main className="max-w-md mx-auto py-16 px-6 text-center">
-      <p className="font-mono text-sm text-sage uppercase tracking-wide">Payment Confirmed</p>
-      <p className="mt-4">Your confirmation page is coming in Phase 7.</p>
+      <p className="font-mono text-sm text-ember uppercase tracking-wide">Something Went Wrong</p>
+      <p className="mt-4 text-sage text-sm">Please contact the organizer with your purchase ID.</p>
     </main>
   )
 }
