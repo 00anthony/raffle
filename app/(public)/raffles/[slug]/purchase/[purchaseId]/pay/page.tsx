@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { StripeRedirect } from '@/features/payments/stripe/components/stripe-redirect'
 import { PaymentPendingPoller } from '@/features/payments/stripe/components/payment-pending-poller'
+import { createClient } from '@/lib/supabase/server'
+import { PaymentInstructions } from '@/features/payments/manual/components/payment-instructions'
+import type { ManualMethod } from '@/features/payments/manual/lib/method-copy'
 
 export default async function PayPage({
   params, searchParams,
@@ -38,16 +41,50 @@ export default async function PayPage({
     )
   }
 
-  if (purchase.payment_method !== 'stripe' && purchase.payment_status === 'pending') {
-    return (
-      <main className="max-w-md mx-auto py-16 px-6 text-center">
-        <p className="font-mono text-sm text-sage uppercase tracking-wide">Purchase Created</p>
-        <p className="mt-2 text-lg">
-          {purchase.ticket_count} ticket{purchase.ticket_count > 1 ? 's' : ''} — ${purchase.amount_paid.toFixed(2)}
-        </p>
-        <p className="mt-4 text-sage text-sm">Manual payment instructions are coming in Phase 6.</p>
-      </main>
-    )
+  if (purchase.payment_method !== 'stripe' && purchase.payment_method !== 'cash') {
+    if (purchase.payment_status === 'pending') {
+      const admin2 = createAdminClient()
+      const { data: full } = await admin2
+        .from('purchases')
+        .select('buyer_name, raffle_id')
+        .eq('id', purchase.id)
+        .single()
+
+      const { data: raffle } = await admin2
+        .from('raffles')
+        .select('payment_accounts')
+        .eq('id', full!.raffle_id)
+        .single()
+
+      const method = purchase.payment_method as ManualMethod
+      const account = (raffle?.payment_accounts as Record<string, string> | null)?.[method] ?? null
+
+      return (
+        <main className="max-w-md mx-auto py-16 px-6">
+          <div className="text-center mb-8">
+            <p className="font-mono text-xs uppercase tracking-wide text-sage">Complete Your Payment</p>
+          </div>
+          <PaymentInstructions
+            purchaseId={purchase.id}
+            method={method}
+            account={account}
+            referenceLabel={full!.buyer_name}
+            amountPaid={purchase.amount_paid}
+          />
+        </main>
+      )
+    }
+
+    if (purchase.payment_status === 'pending_verification') {
+      return (
+        <main className="max-w-md mx-auto py-16 px-6 text-center">
+          <p className="font-mono text-sm text-sage uppercase tracking-wide">Payment Submitted</p>
+          <p className="mt-4 text-sage text-sm">
+            Thanks! An organizer will verify your payment and email you a confirmation with your ticket numbers shortly.
+          </p>
+        </main>
+      )
+    }
   }
 
   // Bounded polling instead of infinite meta-refresh.
