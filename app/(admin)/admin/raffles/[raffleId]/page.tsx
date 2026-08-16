@@ -20,6 +20,10 @@ export default async function EditRafflePage({ params }: { params: Promise<{ raf
           className="font-mono text-xs uppercase tracking-wide border border-brass/40 px-4 py-2 inline-block">
           Export Purchases (CSV)
         </a>
+        <a href={`/admin/draw/${raffle.id}`}
+          className="font-mono text-xs uppercase tracking-wide border-2 border-charcoal bg-ember text-ticket-cream px-4 py-2 inline-block ml-3">
+          Open Live Draw
+        </a>
       </div>
     </main>
   )
