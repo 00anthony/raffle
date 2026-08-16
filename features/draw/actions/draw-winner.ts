@@ -57,7 +57,7 @@ export async function drawWinner(raffleId: string, prizeId: string | null) {
   const wheelTickets = sampleForWheel(eligible, winner, WHEEL_SEGMENT_CAP)
 
   revalidatePath(`/admin/draw/${raffleId}`)
-  return { ok: true as const, winningTicket: winner, wheelTickets }
+  return { ok: true as const, winningTicket: winner, wheelTickets, totalEligible: eligible.length }
 }
 
 function sampleForWheel<T extends { id: string }>(pool: T[], winner: T, cap: number): T[] {

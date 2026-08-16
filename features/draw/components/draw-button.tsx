@@ -7,17 +7,20 @@ import { drawWinner } from '../actions/draw-winner'
 import { DrawConfirmModal } from './draw-confirmation-modal'
 import { DrawWheel } from './draw-wheel'
 import { useToast } from '@/hooks/use-toast'
+import { DrawSlotReel } from './draw-slot-reel'
 
 const DEV_MODE = process.env.NEXT_PUBLIC_RAFFLE_DEV_MODE === 'true'
 
 type WheelTicket = { id: string; display_id: string }
+
+const WHEEL_TO_REEL_THRESHOLD = 200
 
 export function DrawButton({
   raffleId, prizeId, prizeTitle, label = 'Draw Winner',
 }: { raffleId: string; prizeId: string | null; prizeTitle?: string; label?: string }) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
-  const [wheelData, setWheelData] = useState<{ tickets: WheelTicket[]; winningTicketId: string } | null>(null)
+  const [wheelData, setWheelData] = useState<{ tickets: WheelTicket[]; winningTicketId: string; totalEligible: number } | null>(null)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -29,7 +32,8 @@ export function DrawButton({
         toast({ title: 'Draw failed', description: result.error, variant: 'destructive' })
         return
       }
-      setWheelData({ tickets: result.wheelTickets, winningTicketId: result.winningTicket.id })
+      setWheelData({ tickets: result.wheelTickets, winningTicketId: result.winningTicket.id, totalEligible: result.totalEligible })
+
     })
   }
 
@@ -41,8 +45,9 @@ export function DrawButton({
   }
 
   if (wheelData) {
+    const Visual = wheelData.totalEligible > WHEEL_TO_REEL_THRESHOLD ? DrawSlotReel : DrawWheel
     return (
-      <DrawWheel tickets={wheelData.tickets} winningTicketId={wheelData.winningTicketId}
+      <Visual tickets={wheelData.tickets} winningTicketId={wheelData.winningTicketId}
         prizeTitle={prizeTitle} onComplete={() => router.refresh()} />
     )
   }
