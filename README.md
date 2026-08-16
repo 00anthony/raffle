@@ -12,8 +12,8 @@ TypeScript + Supabase (Postgres/Auth) + Stripe + Tailwind.
 | 3 | ✅ | Public landing page (hero, prizes, rules, QR, footer) |
 | 4 | ✅ | Purchase flow (ticket selection, buyer info, payment method) |
 | 5 | ✅ | Stripe Checkout + webhook + ticket generation |
-| 6 | ⬜ | Manual payments (Cash App / Venmo / Zelle + admin approval) |
-| 7 | ⬜ | Emails (Resend) + signed confirmation-page tokens |
+| 6 | ✅ | Manual payments (Cash App / Venmo / Zelle + admin approval) |
+| 7 | ✅ | Emails (Resend) + signed confirmation-page tokens |
 | 8 | ⬜ | Admin dashboard (stats, cash sale, approvals) |
 | 9 | ⬜ | Live draw (secure server-side selection + wheel animation) |
 | 10 | ⬜ | Testing |
