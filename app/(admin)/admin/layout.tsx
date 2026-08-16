@@ -1,6 +1,7 @@
 // app/(admin)/admin/layout.tsx  (replaces the Phase 5 placeholder)
 import Link from 'next/link'
 import { requireAdmin } from '@/server/auth/require-admin'
+import { SignOutButton } from '@/features/auth/components/sign-out-button'
 
 const NAV_LINKS = [
   { href: '/admin', label: 'Dashboard' },
@@ -13,7 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   await requireAdmin()
   return (
     <div className="min-h-screen bg-ticket-cream flex">
-      <nav className="w-56 shrink-0 bg-charcoal text-ticket-cream p-6 space-y-1">
+      <nav className="w-56 shrink-0 bg-charcoal text-ticket-cream p-6 space-y-1 flex flex-col">
         <p className="font-mono text-xs uppercase tracking-wide text-brass mb-4">Admin</p>
         {NAV_LINKS.map((link) => (
           <Link key={link.href} href={link.href}
@@ -21,6 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             {link.label}
           </Link>
         ))}
+        <div className="mt-auto pt-4"><SignOutButton /></div>
       </nav>
       <div className="flex-1">{children}</div>
     </div>
