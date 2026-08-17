@@ -9,12 +9,13 @@ export default async function AdminLoginPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (user) {
-    const { data: profile } = await supabase
+    const { data: profile, error } = await supabase
       .from('admin_profiles')
       .select('role')
       .eq('user_id', user.id)
       .maybeSingle()
 
+    if (error) console.error('requireAdmin: admin_profiles lookup failed', error) // TEMPORARY
     if (profile) redirect('/admin')
 
     // Authenticated but not an admin — without this branch, requireAdmin()
