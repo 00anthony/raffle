@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/server/auth/require-admin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { raffleFormSchema, type RaffleFormValues } from '../schema'
+import { localInputValueToUtcIso } from '@/lib/datetime'
 
 function buildPaymentAccounts(v: RaffleFormValues) {
   const accounts: Record<string, string> = {}
@@ -29,8 +30,8 @@ export async function createRaffle(input: RaffleFormValues) {
       ticket_prefix: parsed.data.ticketPrefix,
       ticket_price: parsed.data.ticketPrice,
       status: parsed.data.status,
-      end_date: parsed.data.endDate || null,
-      drawing_date: parsed.data.drawingDate,
+      end_date: parsed.data.endDate ? localInputValueToUtcIso(parsed.data.endDate) : null,
+      drawing_date: localInputValueToUtcIso(parsed.data.drawingDate),
       organization_name: parsed.data.organizationName || null,
       event_location: parsed.data.eventLocation || null,
       contact_email: parsed.data.contactEmail || null,

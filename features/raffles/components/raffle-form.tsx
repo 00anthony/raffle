@@ -8,6 +8,7 @@ import { raffleFormSchema, type RaffleFormValues } from '../schema'
 import { createRaffle } from '../actions/create-raffle'
 import { updateRaffle } from '../actions/update-raffle'
 import { suggestTicketPrefix } from '../lib/suggest-ticket-prefix'
+import { utcIsoToLocalInputValue } from '@/lib/datetime'
 import { useToast } from '@/hooks/use-toast'
 import type { Raffle } from '@/types/raffle'
 
@@ -35,8 +36,8 @@ function raffleToFormValues(raffle: Raffle): RaffleFormValues {
     ticketPrefix: raffle.ticket_prefix,
     ticketPrice: raffle.ticket_price,
     status: raffle.status,
-    endDate: raffle.end_date?.slice(0, 16) ?? '',
-    drawingDate: raffle.drawing_date.slice(0, 16),
+    endDate: raffle.end_date ? utcIsoToLocalInputValue(raffle.end_date) : '',
+    drawingDate: utcIsoToLocalInputValue(raffle.drawing_date),
     organizationName: raffle.organization_name ?? '',
     eventLocation: raffle.event_location ?? '',
     contactEmail: raffle.contact_email ?? '',
