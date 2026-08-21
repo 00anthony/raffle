@@ -1,9 +1,9 @@
-// app/(admin)/admin/draw/[raffleId]/page.tsx
+// app/(admin)/admin/draw/[raffleId]/page.tsx — updated to always render DrawSection
 import { notFound } from 'next/navigation'
 import { getRaffleById } from '@/features/raffles/queries/get-raffle-by-id'
 import { getPrizesByRaffle } from '@/features/raffles/queries/get-prizes-by-raffle'
 import { getDrawsForRaffle } from '@/features/draw/queries/get-draws-for-raffle'
-import { DrawButton } from '@/features/draw/components/draw-button'
+import { DrawSection } from '@/features/draw/components/draw-section'
 import { LocalDateTime } from '@/components/shared/local-datetime'
 
 export default async function AdminDrawPage({ params }: { params: Promise<{ raffleId: string }> }) {
@@ -12,34 +12,30 @@ export default async function AdminDrawPage({ params }: { params: Promise<{ raff
   if (!raffle) notFound()
 
   const [prizes, draws] = await Promise.all([getPrizesByRaffle(raffleId), getDrawsForRaffle(raffleId)])
-  const generalDraw = draws.find((d) => !d.prizeId)
+  const generalDraw = draws.find((d) => !d.prizeId) ?? null
 
   return (
     <main className="p-8 bg-ink-green min-h-screen text-ticket-cream -m-8">
       <div className="p-8">
         <h1 className="font-display text-3xl">{raffle.title} — Live Draw</h1>
         <p className="text-sage font-mono text-sm mt-1">
-          Drawing date: {new Date(raffle.drawing_date).toLocaleString()}
+          Drawing date: <LocalDateTime iso={raffle.drawing_date} options={{ dateStyle: 'medium', timeStyle: 'short' }} />
         </p>
 
         <div className="mt-10 space-y-6 max-w-md">
           {prizes.length === 0 ? (
-            generalDraw ? (
-              <WinnerSummary ticketDisplayId={generalDraw.ticketDisplayId} drawnAt={generalDraw.drawnAt} />
-            ) : (
-              <DrawButton raffleId={raffleId} prizeId={null} />
-            )
+            <DrawSection raffleId={raffleId} prizeId={null}
+              existingWinner={generalDraw ? { ticketDisplayId: generalDraw.ticketDisplayId, drawnAt: generalDraw.drawnAt } : null} />
           ) : (
             prizes.map((prize) => {
-              const existing = draws.find((d) => d.prizeId === prize.id)
+              const existing = draws.find((d) => d.prizeId === prize.id) ?? null
               return (
                 <div key={prize.id} className="border border-brass/40 p-4">
                   <p className="font-display text-xl">{prize.title}</p>
-                  {existing ? (
-                    <WinnerSummary ticketDisplayId={existing.ticketDisplayId} drawnAt={existing.drawnAt} />
-                  ) : (
-                    <div className="mt-3"><DrawButton raffleId={raffleId} prizeId={prize.id} prizeTitle={prize.title} /></div>
-                  )}
+                  <div className="mt-3">
+                    <DrawSection raffleId={raffleId} prizeId={prize.id} prizeTitle={prize.title}
+                      existingWinner={existing ? { ticketDisplayId: existing.ticketDisplayId, drawnAt: existing.drawnAt } : null} />
+                  </div>
                 </div>
               )
             })
