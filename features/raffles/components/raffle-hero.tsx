@@ -1,6 +1,7 @@
 import { PerforatedDivider } from './perforated-divider'
 import { TicketStubCta } from './ticket-stub-cta'
 import type { Raffle } from '@/types/raffle'
+import { LocalDateTime } from '@/components/shared/local-datetime'
 
 export function RaffleHero({ raffle }: { raffle: Raffle }) {
   return (
@@ -22,9 +23,7 @@ export function RaffleHero({ raffle }: { raffle: Raffle }) {
             <div>
               <dt className="text-sage">Drawing</dt>
               <dd className="text-ticket-cream">
-                {new Date(raffle.drawing_date).toLocaleDateString(undefined, {
-                  month: 'short', day: 'numeric', year: 'numeric',
-                })}
+                <LocalDateTime iso={raffle.drawing_date} options={{ dateStyle: 'medium', timeStyle: 'short' }} />
               </dd>
             </div>
           </dl>

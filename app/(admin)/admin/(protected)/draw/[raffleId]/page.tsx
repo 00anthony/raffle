@@ -4,6 +4,7 @@ import { getRaffleById } from '@/features/raffles/queries/get-raffle-by-id'
 import { getPrizesByRaffle } from '@/features/raffles/queries/get-prizes-by-raffle'
 import { getDrawsForRaffle } from '@/features/draw/queries/get-draws-for-raffle'
 import { DrawButton } from '@/features/draw/components/draw-button'
+import { LocalDateTime } from '@/components/shared/local-datetime'
 
 export default async function AdminDrawPage({ params }: { params: Promise<{ raffleId: string }> }) {
   const { raffleId } = await params
@@ -52,7 +53,7 @@ export default async function AdminDrawPage({ params }: { params: Promise<{ raff
 function WinnerSummary({ ticketDisplayId, drawnAt }: { ticketDisplayId: string; drawnAt: string }) {
   return (
     <p className="font-mono text-sm text-brass mt-2">
-      Winner: {ticketDisplayId} · drawn {new Date(drawnAt).toLocaleString()}
+      Winner: {ticketDisplayId} · drawn <LocalDateTime iso={drawnAt} options={{ dateStyle: 'medium', timeStyle: 'short' }} />
     </p>
   )
 }
